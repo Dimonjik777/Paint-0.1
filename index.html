@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Рисовалка</title>
+</head>
+<body style=" background-image:url(php-leader.png); background-position:center">
+	<canvas id="canvas"></canvas>
+	<script>
+		let 
+		canv = document.getElementById('canvas'),
+		ctx = canv.getContext('2d'),
+		radius = 9,
+		cords = [],
+		LeftButtonMouse = false;
+
+		canv.width = window.innerWidth;
+		canv.height = window.innerHeight;
+		canv.addEventListener('mousedown', function() {
+			LeftButtonMouse = true;
+		});
+		canv.addEventListener('touchstart', function() {
+			LeftButtonMouse = true;
+		});
+		canv.addEventListener('touchend', function() {
+			LeftButtonMouse = false;
+		});
+		canv.addEventListener('mouseup', function(){
+			LeftButtonMouse = false;
+			ctx.beginPath();
+			cords.push('mouseup');
+		});
+		ctx.lineWidth = radius * 2;
+		canv.addEventListener('mousemove', function(e){
+			if(LeftButtonMouse == true) {
+				cords.push([e.clientX, e.clientY]);
+				ctx.lineTo(e.clientX, e.clientY);
+				ctx.stroke();
+
+				ctx.beginPath();
+				ctx.arc(e.clientX, e.clientY, radius, 0,Math.PI * 2);
+				ctx.fill();
+
+                ctx.beginPath();
+				ctx.lineTo(e.clientX, e.clientY);
+				ctx.stroke();
+				
+			};
+		});
+		canv.addEventListener('touchmove', function(e) {
+			cords.push([e.clientX, e.clientY]);
+				ctx.lineTo(e.clientX, e.clientY);
+				ctx.stroke();
+
+				ctx.beginPath();
+				ctx.arc(e.clientX, e.clientY, radius, 0,Math.PI * 2);
+				ctx.fill();
+
+                ctx.beginPath();
+				ctx.lineTo(e.clientX, e.clientY);
+				ctx.stroke();
+			});
+
+function save() {
+	localStorage.setItem('cords', JSON.stringify(cords));
+}
+function clear() {
+	ctx.clearRect(0, 0, canv.width, canv.height);
+}
+function replay() {
+	let timer = setInterval(function () {
+		if(! cords.length) {
+			clearInterval(timer);
+			ctx.beginPath();
+			return;
+		}
+		let coords = cords.shift();
+		let e = {
+			clientX: coords["0"],
+			clientY: coords["1"],
+		};
+		ctx.fillStyle = '#363254FF';
+		ctx.strokeStyle = '#363254FF';
+				ctx.lineTo(e.clientX, e.clientY);
+				ctx.stroke();
+
+				ctx.beginPath();
+				ctx.arc(e.clientX, e.clientY, radius, 0,Math.PI * 2);
+				ctx.fill();
+
+                ctx.beginPath();
+				ctx.lineTo(e.clientX, e.clientY);
+				ctx.stroke();
+
+
+	}, 5)
+}
+		document.addEventListener('keydown', function(r){
+			if(r.keyCode == 82){// Button R
+ 				cords = JSON.parse(localStorage.getItem('cords'));
+ 				document.body.style.backgroundImage = '';
+
+				clear();
+				replay();
+			};
+			if(r.keyCode == 83){// Button S
+				save();
+			};
+			if(r.keyCode == 67){// Button C
+				clear();
+			};
+		});
+
+	</script>
+</body>
+</html>
